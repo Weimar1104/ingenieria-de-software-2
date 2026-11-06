@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Estado de Solicitud - Banco de Alimentos</title>
+    <style>
+        body { font-family: "Times New Roman", Times, serif; margin: 0; padding: 20px; background: #f9f9f9; color: #000; }
+        .container { max-width: 800px; margin: 40px auto; background: #fff; padding: 30px; border: 2px solid #000; box-shadow: 4px 4px 0px #888; }
+        header { border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 20px; }
+        .box { border: 1px solid #000; padding: 15px; background: #fdfdfd; margin-bottom: 20px; }
+        .btn { display: inline-block; padding: 8px 16px; background: #000; color: #fff; border: 1px solid #000; text-decoration: none; font-weight: bold; cursor: pointer; }
+        .btn:hover { background: #333; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <header>
+        <h2 style="margin: 0 0 5px 0;">BANCO DE ALIMENTOS INTELIGENTE PARA MEDELLÍN</h2>
+        <small>Control de Notificaciones del Sistema (Ingeniería de Software II)</small>
+    </header>
+
+    <div class="box">
+        <h3>Notificación de Procesamiento</h3>
+        <p>Se ha presentado una situación en la solicitud enviada al servidor:</p>
+        <ul>
+            <li><strong>Código de Estado:</strong> <span th:text="${status}">400</span></li>
+            <li><strong>Motivo / Mensaje:</strong> <span th:text="${error != null ? error : message}">Solicitud Incorrecta</span></li>
+            <li th:if="${message != null}"><strong>Detalle:</strong> <span th:text="${message}">Parámetro no válido</span></li>
+        </ul>
+        <p>Por favor regresa a la sección correspondiente e intenta de nuevo con datos válidos.</p>
+    </div>
+
+    <div>
+        <a th:href="@{/}" class="btn">Volver al Panel Principal</a>
+        <a th:href="@{/donaciones}" class="btn" style="background: #fff; color: #000; margin-left: 10px;">Ir a Donaciones</a>
+        <a th:href="@{/entregas}" class="btn" style="background: #fff; color: #000; margin-left: 10px;">Ir a Entregas</a>
+    </div>
+</div>
+</body>
+</html>

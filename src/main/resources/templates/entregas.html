@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Despacho y Entregas - Banco de Alimentos</title>
+    <style>
+        body { font-family: "Times New Roman", Times, serif; margin: 0; padding: 20px; background: #f9f9f9; color: #000; }
+        .container { max-width: 1050px; margin: 0 auto; background: #fff; padding: 25px; border: 2px solid #000; box-shadow: 4px 4px 0px #888; }
+        header { border-bottom: 2px solid #000; padding-bottom: 10px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
+        .nav-bar { display: flex; gap: 10px; margin-bottom: 20px; padding-bottom: 12px; border-bottom: 2px solid #000; flex-wrap: wrap; }
+        .nav-tab-btn { display: inline-block; padding: 8px 16px; font-size: 13px; font-weight: bold; text-decoration: none; color: #000; background-color: #f2f2f2; border: 2px solid #000; box-shadow: 2px 2px 0px #000; cursor: pointer; }
+        .nav-tab-btn:hover { background-color: #000; color: #fff; box-shadow: 0px 0px 0px #000; }
+        .nav-tab-btn.active { background-color: #000; color: #fff; box-shadow: none; }
+        .form-box { border: 1px solid #000; padding: 15px; margin-bottom: 20px; background: #fafafa; }
+        .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 10px; }
+        label { display: block; font-weight: bold; font-size: 12px; margin-bottom: 4px; }
+        input, select { width: 100%; padding: 6px; border: 1px solid #000; box-sizing: border-box; }
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { border: 1px solid #000; padding: 8px 10px; text-align: left; }
+        th { background: #e5e5e5; }
+        .btn { padding: 8px 16px; background: #000; color: #fff; border: 1px solid #000; cursor: pointer; font-weight: bold; }
+        .alert-success { padding: 10px; border: 1px solid #000; background: #e5e5e5; margin-bottom: 15px; font-weight: bold; }
+        .alert-danger { padding: 10px; border: 2px solid #000; background: #f2f2f2; margin-bottom: 15px; font-weight: bold; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <header>
+        <div>
+            <h2 style="margin: 0 0 5px 0;">BANCO DE ALIMENTOS INTELIGENTE PARA MEDELLÍN</h2>
+            <small>Sistema de Gestión de Donaciones de Alimentos (Ingeniería de Software II - Remington)</small>
+        </div>
+        <div>
+            <form th:action="@{/logout}" method="post" style="margin: 0;">
+                <button type="submit" class="btn" style="background: #fff; color: #000; font-weight: bold; padding: 6px 14px;">Cerrar Sesión</button>
+            </form>
+        </div>
+    </header>
+
+    <div class="nav-bar">
+        <a th:href="@{/}" class="nav-tab-btn">📦 Inventario Central</a>
+        <a th:href="@{/donaciones}" class="nav-tab-btn">📥 Recepción de Donaciones</a>
+        <a th:href="@{/entregas}" class="nav-tab-btn active">📤 Despacho y Entregas</a>
+        <a th:href="@{/ia}" class="nav-tab-btn">🧠 Análisis IA Predictivo</a>
+    </div>
+
+    <div th:if="${success}" class="alert-success" th:text="${success}"></div>
+    <div th:if="${error}" class="alert-danger" th:text="${error}"></div>
+
+    <div class="form-box">
+        <h3 style="margin-top: 0;">Programar Despacho a Beneficiarios Vulnerables (RN-12 / RN-16)</h3>
+        <p style="font-size: 12px; font-style: italic; margin-top: 2px;">Regla RN-12: Exclusivo para beneficiarios validados en estratos socioeconómicos 1, 2 y 3. Regla RN-16: El sistema valida automáticamente que la cantidad solicitada no sobregire el stock disponible en bodega.</p>
+
+        <form th:action="@{/entregas/guardar}" method="post">
+            <div class="grid">
+                <div>
+                    <label>Beneficiario Validado (RN-12: Estratos 1..3):</label>
+                    <select name="idBeneficiario" required>
+                        <option th:each="b : ${beneficiarios}" th:value="${b.idBeneficiario}" th:text="${b.nombreBeneficiario} + ' [Estrato ' + ${b.estratoSocioeconomico} + ' - ' + ${b.ubicacionComuna} + ']'"></option>
+                    </select>
+                </div>
+                <div>
+                    <label>Responsable de Despacho:</label>
+                    <select name="idUsuario" required>
+                        <option th:each="u : ${usuarios}" th:value="${u.idUsuario}" th:text="${u.nombreCompleto} + ' - ' + ${u.rol.nombreRol}"></option>
+                    </select>
+                </div>
+                <div>
+                    <label>Producto a Entregar:</label>
+                    <select name="idProducto" required>
+                        <option th:each="p : ${productos}" th:value="${p.idProducto}" th:text="${p.nombreProducto} + ' [' + ${p.unidadMedida} + ']'"></option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="grid">
+                <div>
+                    <label>Cantidad Solicitada (RN-16: Stock suficiente):</label>
+                    <input type="number" step="0.01" min="0.01" name="cantidad" placeholder="Ej: 20.0" required />
+                </div>
+                <div>
+                    <label>Código de Acta / Ruta de Entrega:</label>
+                    <input type="text" name="ruta" placeholder="Ej: ACTA-2026-MED-01" required />
+                </div>
+                <div>
+                    <label>Observaciones de Entrega:</label>
+                    <input type="text" name="observaciones" placeholder="Ej: Ración para comedor comunitario San Javier" />
+                </div>
+            </div>
+
+            <div style="margin-top: 15px;">
+                <button type="submit" class="btn">Despachar Alimentos y Descontar Inventario</button>
+            </div>
+        </form>
+    </div>
+
+    <h3>Historial de Entregas y Despachos Comunitarios</h3>
+    <table>
+        <thead>
+        <tr>
+            <th>ID</th>
+            <th>Acta / Ruta</th>
+            <th>Beneficiario</th>
+            <th>Estrato</th>
+            <th>Despachado por</th>
+            <th>Fecha Entrega</th>
+            <th>Estado</th>
+            <th>Detalles (Alimento / Cantidad)</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="e : ${entregas}">
+            <td th:text="${e.idEntrega}">1</td>
+            <td><strong th:text="${e.rutaEntrega}">ACTA-001</strong></td>
+            <td th:text="${e.beneficiario.nombreBeneficiario}">Comedor Comuna 13</td>
+            <td th:text="'Estrato ' + ${e.beneficiario.estratoSocioeconomico}">Estrato 1</td>
+            <td th:text="${e.usuarioResponsable.nombreCompleto}">Admin</td>
+            <td th:text="${#temporals.format(e.fechaEntrega, 'dd/MM/yyyy')}">01/11/2026</td>
+            <td th:text="${e.estado}">ACTIVO</td>
+            <td>
+                <ul>
+                    <li th:each="det : ${e.detalles}" th:text="${det.producto.nombreProducto} + ': ' + ${det.cantidad} + ' ' + ${det.producto.unidadMedida}"></li>
+                </ul>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+</body>
+</html>
